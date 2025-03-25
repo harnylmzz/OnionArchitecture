@@ -1,12 +1,24 @@
+using Application.Validators.Products;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Infastructure.Filters;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// FluentValidation'u ekleyelim
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+})
+    .ConfigureApiBehaviorOptions(options => options.SuppressModelStateInvalidFilter = true);
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// FluentValidation Middleware
+builder.Services.AddFluentValidationAutoValidation(); // Bunu ekledim
+builder.Services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
+
+// OpenAPI ve diðer servisleri ekleyelim
 builder.Services.AddOpenApi();
 builder.Services.AddPersistenceServices();
-
 
 var app = builder.Build();
 
@@ -17,9 +29,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
